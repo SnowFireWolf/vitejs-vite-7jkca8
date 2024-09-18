@@ -14,9 +14,9 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "tailwindcss",
-    "postcss",
-    "autoprefixer",
+    "tailwindcss": "^3.4.12",
+    "postcss": "8.4.47",
+    "autoprefixer": "10.4.20",
     "@eslint/js": "^9.10.0",
     "@types/react": "^18.3.6",
     "@types/react-dom": "^18.3.0",
