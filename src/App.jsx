@@ -149,7 +149,7 @@ const MorseCodeApp = () => {
         </button>
       </div>
 
-      <h2 class="text-4xl"></h2>Kevin Zheng 2024</h2>
+      <h2 class="text-4xl">Kevin Zheng 2024</h2>
     </div>
   );
 };
