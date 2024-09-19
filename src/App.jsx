@@ -5,6 +5,7 @@ const MorseCodeApp = () => {
   const [morse, setMorse] = useState('');
   const [audioContext, setAudioContext] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSymbol, setCurrentSymbol] = useState('');
   const timeoutsRef = useRef([]);
   const currentIndexRef = useRef(0);
 
@@ -56,6 +57,7 @@ const MorseCodeApp = () => {
 
   const stopPlayback = () => {
     setIsPlaying(false);
+    setCurrentSymbol('');
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
     currentIndexRef.current = 0;
@@ -73,6 +75,7 @@ const MorseCodeApp = () => {
   const schedule = (index) => {
     if (index >= morse.length) {
       setIsPlaying(false);
+      setCurrentSymbol('');
       return;
     }
 
@@ -84,16 +87,22 @@ const MorseCodeApp = () => {
 
     if (char === '.') {
       playTone(audioContext.currentTime, dot);
+      setCurrentSymbol('•');
       duration = dot + pause;
     } else if (char === '-') {
       playTone(audioContext.currentTime, dash);
+      setCurrentSymbol('−');
       duration = dash + pause;
     } else if (char === ' ') {
+      setCurrentSymbol(' ');
       duration = dot * 7;
     }
 
     currentIndexRef.current = index + 1;
-    const timeout = setTimeout(() => schedule(index + 1), duration * 1000);
+    const timeout = setTimeout(() => {
+      setCurrentSymbol('');
+      schedule(index + 1);
+    }, duration * 1000);
     timeoutsRef.current.push(timeout);
   };
 
@@ -124,6 +133,9 @@ const MorseCodeApp = () => {
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
         />
       </div>
+      <div className="mb-4 h-24 flex items-center justify-center bg-gray-100 rounded-md">
+        <span className="text-6xl font-bold text-blue-500">{currentSymbol}</span>
+      </div>
       <div className="flex space-x-2">
         <button
           onClick={isPlaying ? stopPlayback : playMorseCode}
@@ -136,6 +148,8 @@ const MorseCodeApp = () => {
           {isPlaying ? '停止' : '播放摩斯密碼'}
         </button>
       </div>
+
+      <h2 class="text-4xl"></h2>Kevin Zheng 2024</h2>
     </div>
   );
 };
