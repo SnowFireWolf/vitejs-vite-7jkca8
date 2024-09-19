@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const MorseCodeApp = () => {
   const [text, setText] = useState('');
   const [morse, setMorse] = useState('');
   const [audioContext, setAudioContext] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const timeoutsRef = useRef([]);
+  const currentIndexRef = useRef(0);
 
   useEffect(() => {
     setAudioContext(new (window.AudioContext || window.webkitAudioContext)());
+    return () => {
+      stopPlayback();
+    };
   }, []);
 
   const morseCode = {
@@ -41,24 +47,18 @@ const MorseCodeApp = () => {
   };
 
   const playMorseCode = () => {
-    if (!audioContext) return;
+    if (!audioContext || isPlaying) return;
 
-    const dot = 0.1;
-    const dash = dot * 3;
-    const pause = dot;
-    let startTime = audioContext.currentTime;
+    setIsPlaying(true);
+    currentIndexRef.current = 0;
+    schedule(0);
+  };
 
-    morse.split('').forEach(char => {
-      if (char === '.') {
-        playTone(startTime, dot);
-        startTime += dot + pause;
-      } else if (char === '-') {
-        playTone(startTime, dash);
-        startTime += dash + pause;
-      } else if (char === ' ') {
-        startTime += dot * 7;
-      }
-    });
+  const stopPlayback = () => {
+    setIsPlaying(false);
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+    currentIndexRef.current = 0;
   };
 
   const playTone = (startTime, duration) => {
@@ -68,6 +68,33 @@ const MorseCodeApp = () => {
     oscillator.connect(audioContext.destination);
     oscillator.start(startTime);
     oscillator.stop(startTime + duration);
+  };
+
+  const schedule = (index) => {
+    if (index >= morse.length) {
+      setIsPlaying(false);
+      return;
+    }
+
+    const dot = 0.1;
+    const dash = dot * 3;
+    const pause = dot;
+    const char = morse[index];
+    let duration = 0;
+
+    if (char === '.') {
+      playTone(audioContext.currentTime, dot);
+      duration = dot + pause;
+    } else if (char === '-') {
+      playTone(audioContext.currentTime, dash);
+      duration = dash + pause;
+    } else if (char === ' ') {
+      duration = dot * 7;
+    }
+
+    currentIndexRef.current = index + 1;
+    const timeout = setTimeout(() => schedule(index + 1), duration * 1000);
+    timeoutsRef.current.push(timeout);
   };
 
   return (
@@ -81,7 +108,8 @@ const MorseCodeApp = () => {
           type="text"
           value={text}
           onChange={handleTextChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={isPlaying}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
         />
       </div>
       <div className="mb-4">
@@ -92,15 +120,22 @@ const MorseCodeApp = () => {
           type="text"
           value={morse}
           onChange={handleMorseChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={isPlaying}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
         />
       </div>
-      <button
-        onClick={playMorseCode}
-        className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-      >
-        播放摩斯密碼
-      </button>
+      <div className="flex space-x-2">
+        <button
+          onClick={isPlaying ? stopPlayback : playMorseCode}
+          className={`flex-1 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+            isPlaying
+              ? 'bg-red-500 text-white hover:bg-red-600'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+          }`}
+        >
+          {isPlaying ? '停止' : '播放摩斯密碼'}
+        </button>
+      </div>
     </div>
   );
 };
