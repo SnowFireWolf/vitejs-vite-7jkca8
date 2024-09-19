@@ -148,8 +148,7 @@ const MorseCodeApp = () => {
           {isPlaying ? '停止' : '播放摩斯密碼'}
         </button>
       </div>
-
-      <!-- footer -->
+      
   <div class="mt-5 ">
     <div class="py-5">
       <div class="border-t border-gray-200"></div>
