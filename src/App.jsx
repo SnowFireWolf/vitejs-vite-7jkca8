@@ -149,7 +149,15 @@ const MorseCodeApp = () => {
         </button>
       </div>
 
-      <h2 class="text-4xl">Kevin Zheng 2024</h2>
+      <!-- footer -->
+  <div class="mt-5 ">
+    <div class="py-5">
+      <div class="border-t border-gray-200"></div>
+    </div>
+    <div class="py-3-safe text-xs text-gray-400 text-center">
+      <p>Kevin Zheng © 2024.</p>
+    </div>
+  </div>
     </div>
   );
 };
